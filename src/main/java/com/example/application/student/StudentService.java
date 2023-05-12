@@ -4,15 +4,22 @@ import com.example.application.exception.ApiRequestException;
 import com.example.application.exception.BadRequestException;
 import com.example.application.grade.Grade;
 import com.example.application.grade.GradeRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.prefs.CsvPreference;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+
 
 @Service
 public class StudentService {
@@ -83,5 +90,23 @@ public class StudentService {
         Student student = studentRepository.getReferenceById(studentId);
         Set<Grade> grades = student.getGrades();
         return grades;
+    }
+
+    public void getStudentsCSC(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        String fileName = "students.csv";
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename="+fileName;
+
+        response.setHeader(headerKey,headerValue);
+        List<Student> students  = studentRepository.findAll();
+        ICsvBeanWriter iCsvBeanWriter =  new CsvBeanWriter(response.getWriter(), CsvPreference.STANDARD_PREFERENCE);
+        String[] csvHeader = {"Firstname", "Lastname", "DateOfBirth", "Age"};
+        String[] nameMapping = {"name", "lastName", "dateOfBirth", "age"};
+        iCsvBeanWriter.writeHeader(csvHeader);
+        for(Student searchStudent : students){
+            iCsvBeanWriter.write(searchStudent, nameMapping);
+        }
+        iCsvBeanWriter.close();
     }
 }

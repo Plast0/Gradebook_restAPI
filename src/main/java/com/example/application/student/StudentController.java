@@ -1,9 +1,11 @@
 package com.example.application.student;
 
 import com.example.application.grade.Grade;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
@@ -22,6 +24,11 @@ public class StudentController {
     @GetMapping()
     public List<Student> getStudents(){
         return studentService.getStudents();
+    }
+
+    @GetMapping("/csv")
+    public void getStudentsCSV(HttpServletResponse response)throws IOException {
+        studentService.getStudentsCSC(response);
     }
 
     @GetMapping(path = "{studentId}")
@@ -51,4 +58,5 @@ public class StudentController {
      ){
         return studentService.addGrade( studentId, gradeId);
      }
+
 }
